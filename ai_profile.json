@@ -1,21 +1,21 @@
 {
-  "name": "AggressiveAI",
+  "name": "BalancedAI",
   "rules": [
     {
-      "condition": "self_energy >= 1 and opponent_health <= 30",
-      "action": "attack"
+      "condition": "self_energy >= 5 and opponent_health <= 40",
+      "action": "Heavy Slam"
     },
     {
-      "condition": "self_energy == 0",
-      "action": "recharge"
+      "condition": "self_health <= 30 and self_energy >= 3",
+      "action": "Regenerate"
     },
     {
-      "condition": "self_health <= 30",
-      "action": "defend"
+      "condition": "self_energy <= 2",
+      "action": "Recharge"
     },
     {
       "condition": "True",
-      "action": "attack"
+      "action": "Claw Swipe"
     }
   ]
 }
