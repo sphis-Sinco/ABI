@@ -2,6 +2,7 @@ import tkinter as tk
 import random
 from .ai_script import AIScript
 from .moves import Move
+import tkinter.messagebox as messagebox
 
 class BattleGame(tk.Frame):
     def __init__(self, master, main_app):
@@ -128,13 +129,17 @@ class BattleGame(tk.Frame):
     def end_turn(self):
         self.update_labels()
         if self.player_health <= 0:
-            self.log("You have been defeated by the A.I.!")
-            self.disable_buttons()
-            return
+                self.log("You have been defeated by the A.I.!")
+                self.disable_buttons()
+                messagebox.showinfo("Defeat", "You have been defeated by the A.I.")
+                self.main_app.show_mainmenu()
+                return
         if self.ai_health <= 0:
-            self.log("You defeated the A.I.! Victory is yours!")
-            self.disable_buttons()
-            return
+                self.log("You defeated the A.I.! Victory is yours!")
+                self.disable_buttons()
+                messagebox.showinfo("Victory", "You defeated the A.I.! Congratulations!")
+                self.main_app.show_mainmenu()
+                return
 
         self.enable_buttons()
         self.root_after_id = self.after(1000, self.ai_turn)
