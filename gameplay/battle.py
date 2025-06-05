@@ -1,28 +1,7 @@
 import tkinter as tk
 import random
-import json
-import os
-
-class AIScript:
-    def __init__(self, filename="ai_profile.json"):
-        self.rules = []
-        self.name = "DefaultAI"
-        if os.path.exists(filename):
-            try:
-                with open(filename, "r") as f:
-                    data = json.load(f)
-                    self.name = data.get("name", "CustomAI")
-                    self.rules = data.get("rules", [])
-            except Exception as e:
-                print(f"Failed to load AI script: {e}")
-        else:
-            print("AI script file not found. Using default behavior.")
-
-class Move:
-    def __init__(self, name, damage, energy_cost):
-        self.name = name
-        self.damage = damage
-        self.energy_cost = energy_cost
+from .ai_script import AIScript
+from .moves import Move
 
 class BattleGame(tk.Frame):
     def __init__(self, master, main_app):

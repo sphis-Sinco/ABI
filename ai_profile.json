@@ -1,21 +1,9 @@
 {
-  "name": "BalancedAI",
-  "rules": [
-    {
-      "condition": "self_energy >= 5 and opponent_health <= 40",
-      "action": "Heavy Slam"
-    },
-    {
-      "condition": "self_health <= 30 and self_energy >= 3",
-      "action": "Regenerate"
-    },
-    {
-      "condition": "self_energy <= 2",
-      "action": "Recharge"
-    },
-    {
-      "condition": "True",
-      "action": "Claw Swipe"
-    }
-  ]
+    "name": "Smart AI",
+    "rules": [
+        {"condition": "self_health < 30 and self_energy >= 3", "action": "Regenerate"},
+        {"condition": "opponent_health < 20 and self_energy >= 5", "action": "Heavy Slam"},
+        {"condition": "self_energy < 3", "action": "Recharge"},
+        {"condition": "True", "action": "Claw Swipe"}
+    ]
 }
