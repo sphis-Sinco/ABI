@@ -1,0 +1,21 @@
+{
+  "name": "AggressiveAI",
+  "rules": [
+    {
+      "condition": "self_energy >= 1 and opponent_health <= 30",
+      "action": "attack"
+    },
+    {
+      "condition": "self_energy == 0",
+      "action": "recharge"
+    },
+    {
+      "condition": "self_health <= 30",
+      "action": "defend"
+    },
+    {
+      "condition": "True",
+      "action": "attack"
+    }
+  ]
+}
