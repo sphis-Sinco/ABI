@@ -24,10 +24,11 @@ class Move:
         self.damage = damage
         self.energy_cost = energy_cost
 
-class BattleGame:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Pokémon-style AI Battle")
+class BattleGame(tk.Frame):
+    def __init__(self, master, main_app):
+        super().__init__(master)
+        self.main_app = main_app
+        self.pack()
         self.setup_game()
         self.ai_script = AIScript()
 
@@ -39,12 +40,11 @@ class BattleGame:
         self.max_energy = 10
         self.turn = "player"
 
-        # Define moves: name, damage, energy_cost
         self.player_moves = [
             Move("Quick Attack", 15, 2),
             Move("Power Strike", 30, 5),
-            Move("Heal", -20, 3),  # Negative damage means heal
-            Move("Recharge", 0, 0), # Recharge energy (special)
+            Move("Heal", -20, 3),
+            Move("Recharge", 0, 0),
         ]
 
         self.ai_moves = [
@@ -54,13 +54,13 @@ class BattleGame:
             Move("Recharge", 0, 0),
         ]
 
-        self.health_label = tk.Label(self.root, text="")
+        self.health_label = tk.Label(self, text="")
         self.health_label.pack()
 
-        self.ai_label = tk.Label(self.root, text="")
+        self.ai_label = tk.Label(self, text="")
         self.ai_label.pack()
 
-        self.buttons_frame = tk.Frame(self.root)
+        self.buttons_frame = tk.Frame(self)
         self.buttons_frame.pack(pady=5)
 
         self.move_buttons = []
@@ -70,7 +70,7 @@ class BattleGame:
             btn.pack(side=tk.LEFT, padx=5)
             self.move_buttons.append(btn)
 
-        self.log_box = tk.Text(self.root, height=12, width=60, state='disabled')
+        self.log_box = tk.Text(self, height=12, width=60, state='disabled')
         self.log_box.pack(pady=10)
 
         self.update_labels()
@@ -113,7 +113,6 @@ class BattleGame:
             health = self.ai_health
             target_health = self.player_health
 
-        # Handle Recharge move specially
         if move.name.lower() == "recharge":
             if user == "player":
                 self.player_energy = min(self.max_energy, self.player_energy + 3)
@@ -123,14 +122,12 @@ class BattleGame:
                 self.log(f"A.I. used Recharge and restored 3 energy.")
             return
 
-        # Use energy
         if user == "player":
             self.player_energy -= move.energy_cost
         else:
             self.ai_energy -= move.energy_cost
 
         if move.damage < 0:
-            # Healing move
             heal_amount = -move.damage
             if user == "player":
                 self.player_health = min(100, self.player_health + heal_amount)
@@ -139,7 +136,6 @@ class BattleGame:
                 self.ai_health = min(100, self.ai_health + heal_amount)
                 self.log(f"A.I. used {move.name} and healed {heal_amount} HP.")
         else:
-            # Damage move
             if user == "player":
                 self.ai_health -= move.damage
                 self.log(f"You used {move.name} and dealt {move.damage} damage!")
@@ -147,7 +143,6 @@ class BattleGame:
                 self.player_health -= move.damage
                 self.log(f"A.I. used {move.name} and dealt {move.damage} damage!")
 
-        # Clamp health
         self.player_health = max(0, self.player_health)
         self.ai_health = max(0, self.ai_health)
 
@@ -163,16 +158,15 @@ class BattleGame:
             return
 
         self.enable_buttons()
-        self.root.after(1000, self.ai_turn)
+        self.root_after_id = self.after(1000, self.ai_turn)
 
     def ai_turn(self):
         self.disable_buttons()
         action = self.ai_decide()
         move = next((m for m in self.ai_moves if m.name.lower() == action.lower()), None)
         if move is None:
-            move = random.choice(self.ai_moves)  # fallback
+            move = random.choice(self.ai_moves)
 
-        # If AI doesn't have energy for chosen move, fallback to Recharge or lowest cost move
         if move.energy_cost > self.ai_energy:
             recharge_move = next((m for m in self.ai_moves if m.name.lower() == "recharge"), None)
             if recharge_move:
@@ -192,7 +186,6 @@ class BattleGame:
             self.enable_buttons()
 
     def ai_decide(self):
-        # Basic context for AI rules
         context = {
             "self_health": self.ai_health,
             "self_energy": self.ai_energy,
@@ -208,10 +201,52 @@ class BattleGame:
                 print(f"Error in AI condition: {rule['condition']} -> {e}")
                 continue
 
-        # Default fallback move name
         return "Claw Swipe"
 
+class MainMenu(tk.Frame):
+    def __init__(self, master, main_app):
+        super().__init__(master)
+        self.main_app = main_app
+        self.pack()
+
+        tk.Label(self, text="Main Menu", font=("Arial", 24)).pack(pady=20)
+
+        tk.Button(self, text="Random Battle", width=20, command=self.start_random_battle).pack(pady=5)
+        tk.Button(self, text="Story Mode", width=20, command=self.story_mode_placeholder).pack(pady=5)
+        tk.Button(self, text="Settings", width=20, command=self.settings_placeholder).pack(pady=5)
+
+    def start_random_battle(self):
+        self.pack_forget()
+        self.main_app.show_battle()
+
+    def story_mode_placeholder(self):
+        tk.messagebox.showinfo("Story Mode", "Story Mode coming soon!")
+
+    def settings_placeholder(self):
+        tk.messagebox.showinfo("Settings", "Settings coming soon!")
+
+class Application(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("AI Battle Game")
+        self.geometry("650x400")
+
+        self.main_menu = MainMenu(self, self)
+        self.battle_game = None
+
+    def show_battle(self):
+        if self.battle_game:
+            self.battle_game.destroy()
+        self.battle_game = BattleGame(self, self)
+        self.battle_game.pack()
+
+    def show_main_menu(self):
+        if self.battle_game:
+            self.battle_game.destroy()
+            self.battle_game = None
+        self.main_menu.pack()
+
 if __name__ == "__main__":
-    root = tk.Tk()
-    game = BattleGame(root)
-    root.mainloop()
+    import tkinter.messagebox
+    app = Application()
+    app.mainloop()
